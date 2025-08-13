@@ -17,6 +17,16 @@ from typing import Dict, List, Optional, Tuple
 import hashlib
 
 class ClaudeHistoryExporter:
+    """
+    Handles extraction and export of Claude Code conversation history.
+    
+    This class provides functionality to:
+    - Load and parse ~/.claude.json configuration file
+    - Export conversation history to Markdown format
+    - Sync history to JSON with intelligent deduplication
+    - Search and analyze conversation data
+    """
+    
     def __init__(self, claude_json_path: Optional[Path] = None):
         """Initialize the exporter with the path to claude.json"""
         self.claude_json_path = claude_json_path or Path.home() / '.claude.json'
@@ -282,26 +292,32 @@ class ClaudeHistoryExporter:
         existing_hashes = {p['hash'] for p in existing_data['prompts']}
         
         # Find the overlap point and new prompts
+        # This algorithm detects where the existing and current sequences overlap
+        # to avoid duplicates while maintaining chronological order
         new_prompts = []
         overlap_found = False
         
         for i, prompt in enumerate(current_prompts):
             if not overlap_found and prompt['hash'] in existing_hashes:
-                # Found where sequences overlap - check if rest matches
+                # Found potential overlap point - verify sequences match from here
                 overlap_start = i
+                # Get the tail of existing prompts from this point
                 existing_tail = [p['hash'] for p in existing_data['prompts'][-len(current_prompts)+i:]]
+                # Get the tail of current prompts from this point
                 current_tail = [p['hash'] for p in current_prompts[i:]]
                 
                 if existing_tail == current_tail[:len(existing_tail)]:
-                    # Sequences match from this point
+                    # Sequences match - we found the true overlap point
                     overlap_found = True
-                    # Add any prompts before the overlap that aren't in existing
+                    
+                    # Add any new prompts that appear before the overlap
                     for j in range(i):
                         if current_prompts[j]['hash'] not in existing_hashes:
                             prompt_to_add = current_prompts[j].copy()
                             prompt_to_add['first_seen'] = current_timestamp
                             new_prompts.append(prompt_to_add)
-                    # Add any new prompts after the existing sequence
+                    
+                    # Add any new prompts that appear after the existing sequence ends
                     if len(current_tail) > len(existing_tail):
                         for prompt in current_prompts[i+len(existing_tail):]:
                             prompt_to_add = prompt.copy()
@@ -310,7 +326,7 @@ class ClaudeHistoryExporter:
                     break
         
         if not overlap_found:
-            # No overlap found - add all prompts that aren't duplicates
+            # No sequence overlap found - add all non-duplicate prompts
             for prompt in current_prompts:
                 if prompt['hash'] not in existing_hashes:
                     prompt_to_add = prompt.copy()
@@ -356,6 +372,17 @@ class ClaudeHistoryExporter:
         return results
 
 def main():
+    """
+    Main entry point for the Claude History Exporter CLI.
+    
+    Handles command-line arguments and routes to appropriate functionality:
+    - Interactive project selection (default)
+    - List all projects (--list)
+    - Export to markdown (--all)
+    - Sync to JSON (--sync, --sync-all)
+    - Search prompts (--search)
+    - Show statistics (--stats)
+    """
     parser = argparse.ArgumentParser(
         description='Export Claude Code conversation history to markdown or JSON',
         formatter_class=argparse.RawDescriptionHelpFormatter,
