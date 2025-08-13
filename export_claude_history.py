@@ -2,6 +2,9 @@
 """
 Claude Code History Exporter
 Extract and export conversation history from ~/.claude.json to markdown format
+
+DISCLAIMER: This is an unofficial, third-party tool not affiliated with Anthropic.
+Use at your own risk. See DISCLAIMER.md for important information.
 """
 
 import json
