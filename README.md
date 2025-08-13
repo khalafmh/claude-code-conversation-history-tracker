@@ -28,12 +28,23 @@ git clone https://github.com/khalafmh/claude-code-conversation-history-tracker.g
 cd claude-code-conversation-history-tracker
 ```
 
-2. Ensure Python 3.6+ is installed:
+2. Ensure Python 3.8+ is installed:
 ```bash
 python3 --version
 ```
 
-3. No additional dependencies required - uses Python standard library only
+3. **For users**: No additional dependencies required - uses Python standard library only
+
+4. **For developers**: Install development dependencies using `uv`:
+```bash
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create virtual environment and install dev dependencies
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -e ".[dev]"
+```
 
 ## Usage
 
@@ -121,11 +132,18 @@ crontab -e  # Then delete the line containing export_claude_history.py
 ```
 claude-conversations/
 ├── export_claude_history.py   # Main export script
+├── test_export_claude_history.py # Unit tests (94.77% coverage)
 ├── setup_cron.sh              # Cron job setup script
+├── pyproject.toml             # Project configuration
+├── .coveragerc                # Test coverage settings
 ├── claude-json-structure.md   # Documentation of ~/.claude.json structure
 ├── LICENSE                    # MIT License
 ├── README.md                  # This file
+├── DISCLAIMER.md              # Important usage disclaimers
+├── AI_ATTRIBUTION.md          # AI development transparency
 ├── .gitignore                 # Excludes generated files from git
+├── .venv/                     # Virtual environment (git-ignored)
+├── htmlcov/                   # Coverage HTML reports (git-ignored)
 ├── claude_history_json/       # JSON sync output directory (git-ignored)
 │   ├── project_name_history.json
 │   └── sync.log              # Cron job log file
@@ -197,9 +215,57 @@ For detailed information about the ~/.claude.json file structure and extraction 
 
 **Please read the full [DISCLAIMER](DISCLAIMER.md) for important information about data privacy, security, and usage responsibilities.**
 
+## Development
+
+### Running Tests
+
+The project includes comprehensive unit tests with excellent code coverage (currently 94.77%). We maintain a **minimum coverage requirement of 90%**.
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Run tests with coverage report
+python -m pytest test_export_claude_history.py --cov=export_claude_history --cov-report=term-missing
+
+# Generate HTML coverage report
+python -m pytest test_export_claude_history.py --cov=export_claude_history --cov-report=html
+# View report: open htmlcov/index.html
+```
+
+Testing is crucial for maintaining code quality and preventing regressions. All new features should include appropriate tests.
+
+### Project Structure
+
+```
+├── export_claude_history.py   # Main script
+├── test_export_claude_history.py  # Comprehensive test suite
+├── pyproject.toml             # Project configuration and dependencies
+├── .coveragerc                # Coverage configuration
+└── .gitignore                 # Includes test artifacts
+```
+
+### Development Dependencies
+
+- **pytest**: Testing framework
+- **pytest-cov**: Coverage plugin for pytest
+- **pytest-mock**: Mock object library
+- **coverage**: Code coverage measurement
+
 ## Contributing
 
-Feel free to submit issues and enhancement requests!
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+Quick overview:
+1. Fork the repository
+2. Create a feature branch
+3. Write tests (maintain ≥90% coverage)
+4. Make your changes
+5. Submit a pull request
+
+Testing is a core requirement - all new code must include tests to maintain our minimum 90% coverage standard.
+
+For bug reports and feature requests, please use the [GitHub Issues](https://github.com/khalafmh/claude-code-conversation-history-tracker/issues) page.
 
 ## License
 

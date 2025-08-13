@@ -1,0 +1,108 @@
+[project]
+name = "claude-history-exporter"
+version = "1.0.0"
+description = "Export and archive Claude Code conversation history"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Mahdi AlKhalaf", email = "m@mahdi.pro"}
+]
+keywords = ["claude", "conversation", "history", "export", "archive"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
+
+# No runtime dependencies - uses only Python standard library
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "coverage>=7.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+]
+
+[project.scripts]
+claude-history = "export_claude_history:main"
+
+[project.urls]
+Homepage = "https://github.com/khalafmh/claude-code-conversation-history-tracker"
+Repository = "https://github.com/khalafmh/claude-code-conversation-history-tracker"
+Issues = "https://github.com/khalafmh/claude-code-conversation-history-tracker/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+include = [
+    "export_claude_history.py",
+    "*.md",
+    "LICENSE",
+    "setup_cron.sh",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "."]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --cov=export_claude_history --cov-report=term-missing --cov-report=html"
+
+[tool.coverage.run]
+source = ["export_claude_history"]
+omit = [
+    "test_*.py",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+precision = 2
+show_missing = true
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.ruff]
+target-version = "py38"
+line-length = 120
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.ruff.per-file-ignores]
+"test_*.py" = ["F841", "F401"]  # unused variable, unused import
