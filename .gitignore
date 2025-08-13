@@ -1,0 +1,28 @@
+# Claude History Export - Generated Files
+
+# JSON sync directory
+claude_history_json/
+
+# Markdown export directories (timestamped)
+claude_history_export_*/
+
+# Individual markdown export files
+claude_history_*.md
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
